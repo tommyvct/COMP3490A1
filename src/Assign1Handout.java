@@ -5,17 +5,10 @@ import processing.opengl.*;
 
 import java.util.Arrays;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.PrintWriter;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
 
-public class Assign1Handout extends PApplet {
 
+public class Assign1Handout extends PApplet 
+{
     ////////////////////// MAIN PROGRAM
     // creates a sphere made of triangles, centered on 0,0,0, with given radius
     //
@@ -25,14 +18,21 @@ public class Assign1Handout extends PApplet {
     //
     // HINT: first setup a loop to calculate all the points around the sphere,
     // store in an array then loop over those points and setup your triangles.
-    public Triangle[] makeSphere(int radius, int divisions) {
+    public Triangle[] makeSphere(int radius, int divisions) 
+    {
         return new Triangle[0];
     }
 
+
+
     // takes a new triangle, and calculates it's normals and edge vectors
-    public Triangle setupTriangle(Triangle t) {
+    public Triangle setupTriangle(Triangle t) 
+    {
+        // TODO: 意味不明
         return t;
     }
+
+
 
     // This function draws the 2D, already projected triangle, on the raster
     // - it culls degenerate or back-facing triangles
@@ -49,8 +49,11 @@ public class Assign1Handout extends PApplet {
     // HINT: write it first using the gl LINES/TRIANGLES calls, then replace
     // those with your versions once it works.
     public void draw2DTriangle(Triangle t, Lighting lighting, Shading shading) 
-    {        // TODO: didn't learn yet
+    {
+        // TODO: didn't learn yet
     }
+
+
 
     // uses a scanline algorithm to fill the 2D on-raster triangle
     // - implements the specified shading algorithm to set color as specified
@@ -58,8 +61,11 @@ public class Assign1Handout extends PApplet {
     // returns without doing anything
     // - uses POINTS to draw on the raster
     public void fillTriangle(Triangle t, Shading shading) 
-    {        // TODO: didn't learn yet
+    {
+        // TODO: didn't learn yet
     }
+
+
 
     // given point p, normal n, eye location, light location, calculates phong
     // - material represents ambient, diffuse, specular as defined at the top of the
@@ -167,15 +173,6 @@ public class Assign1Handout extends PApplet {
 
 
 
-    /// BASIC Math functions
-    // populate as needed, and add others you may need. I only needed these.
-    // HHIINNT:: use test cases and a test function to make sure you don't have a
-    /// mistake!!!!!!
-    // - I spent like 3 hours because I had a typo in my cross product :(
-
-    // the "2D cross product", as in class
-
-
     /**
      * 2D & 3D vector cross product
      * 
@@ -204,6 +201,7 @@ public class Assign1Handout extends PApplet {
             throw new Exception("Invalid dimension");
         }
     }
+
 
 
     /**
@@ -237,6 +235,8 @@ public class Assign1Handout extends PApplet {
         return ret;
     }
 
+
+
     /**
      * 2D & 3D vector dot product
      * // TODO: test pending
@@ -260,6 +260,7 @@ public class Assign1Handout extends PApplet {
             throw new Exception("Invalid dimension");
         }
     }
+
 
 
     /**
@@ -286,6 +287,8 @@ public class Assign1Handout extends PApplet {
         }
     }
     
+
+
     static public void main(String[] passedArgs) 
     ////////////////////////////////          \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     /////////////////////////////// BLACK  BOX \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
