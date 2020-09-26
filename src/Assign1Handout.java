@@ -5,10 +5,7 @@ import processing.opengl.*;
 
 import java.util.Arrays;
 
-
-
-public class Assign1Handout extends PApplet 
-{
+public class Assign1Handout extends PApplet {
     ////////////////////// MAIN PROGRAM
     // creates a sphere made of triangles, centered on 0,0,0, with given radius
     //
@@ -18,21 +15,14 @@ public class Assign1Handout extends PApplet
     //
     // HINT: first setup a loop to calculate all the points around the sphere,
     // store in an array then loop over those points and setup your triangles.
-    public Triangle[] makeSphere(int radius, int divisions) 
-    {
+    public Triangle[] makeSphere(int radius, int divisions) {
         return new Triangle[0];
     }
 
-
-
     // takes a new triangle, and calculates it's normals and edge vectors
-    public Triangle setupTriangle(Triangle t) 
-    {
-        // TODO: 意味不明
+    public Triangle setupTriangle(Triangle t) {
         return t;
     }
-
-
 
     // This function draws the 2D, already projected triangle, on the raster
     // - it culls degenerate or back-facing triangles
@@ -48,24 +38,24 @@ public class Assign1Handout extends PApplet
     //
     // HINT: write it first using the gl LINES/TRIANGLES calls, then replace
     // those with your versions once it works.
-    public void draw2DTriangle(Triangle t, Lighting lighting, Shading shading) 
-    {
-        // TODO: didn't learn yet
+    public void draw2DTriangle(Triangle t, Lighting lighting, Shading shading) {
+        // TODO: next
+        if (t.degenerate)
+        {
+            return;
+        }
+
+        
     }
-
-
 
     // uses a scanline algorithm to fill the 2D on-raster triangle
     // - implements the specified shading algorithm to set color as specified
     // in the global variable shading. Note that for NONE, this function simply
     // returns without doing anything
     // - uses POINTS to draw on the raster
-    public void fillTriangle(Triangle t, Shading shading) 
-    {
-        // TODO: didn't learn yet
+    public void fillTriangle(Triangle t, Shading shading) {
+        // TODO: Implement a Scan-Line Triangle Fill (25%)
     }
-
-
 
     // given point p, normal n, eye location, light location, calculates phong
     // - material represents ambient, diffuse, specular as defined at the top of the
@@ -74,19 +64,17 @@ public class Assign1Handout extends PApplet
     // - fillcolor values
     public float[] phong(float[] p, float[] n, float[] eye, float[] light, float[] material, float[] fillColor, float s) 
     {
-        // TODO: didn't learn yet
+        // TODO: Phong and Gouraud
         return new float[] { 0, 0, 0 };
     }
-
-
 
     /**
      * implements Bresenham's line algorithm
      * 
      * @param fromX X-coordinate of origin point
      * @param fromY Y-coordinate of origin point
-     * @param toX X-coordinate of destination point
-     * @param toY Y-coordinate of destination point
+     * @param toX   X-coordinate of destination point
+     * @param toY   Y-coordinate of destination point
      */
     public void bresLine(int fromX, int fromY, int toX, int toY) 
     {
@@ -104,20 +92,20 @@ public class Assign1Handout extends PApplet
         int deltaX = toX - fromX;
         int deltaY = toY - fromY;
         float gradient = (float) deltaY / (float) deltaX;
-        
-        if (deltaX == 0)
+
+        if (deltaX == 0) 
         {
             beginShape(POINTS);
-            
-            for (int i = min(fromY, toY); i <= max(fromY, toY); i++)
+
+            for (int i = min(fromY, toY); i <= max(fromY, toY); i++) 
             {
                 vertex(fromX, i);
             }
-            
+
             endShape();
             return;
-        }
-        else if (abs(gradient) > 1.0f)
+        } 
+        else if (abs(gradient) > 1.0f) 
         {
             int swap;
             flip = true;
@@ -140,17 +128,17 @@ public class Assign1Handout extends PApplet
 
         int[][] points = new int[Math.abs(deltaX)][2];
 
-        for (int i = 0; i < Math.abs(deltaX); i++)
+        for (int i = 0; i < Math.abs(deltaX); i++) 
         {
             points[i][0] = x;
             points[i][1] = y;
 
-            x += (deltaX < 0) ? -1 : +1;  // 👈 = -1, 👉 = +1
+            x += (deltaX < 0) ? -1 : +1; // 👈 = -1, 👉 = +1
             error += gradient;
-            if (Math.abs(error) >= 0.5f)
+            if (Math.abs(error) >= 0.5f) 
             {
-                y += (deltaY < 0) ? -1 : +1;  // 👇 = -1, 👆 = +1
-                error += (error < 0 ) ? +1 : -1;
+                y += (deltaY < 0) ? -1 : +1; // 👇 = -1, 👆 = +1
+                error += (error < 0) ? +1 : -1;
             }
         }
 
@@ -158,11 +146,11 @@ public class Assign1Handout extends PApplet
 
         for (int[] point : points) 
         {
-            if (flip)
+            if (flip) 
             {
                 vertex(point[1], point[0]);
-            }
-            else
+            } 
+            else 
             {
                 vertex(point[0], point[1]);
             }
@@ -171,123 +159,429 @@ public class Assign1Handout extends PApplet
         endShape();
     }
 
+    // /**
+    //  * 2D & 3D vector cross product
+    //  * 
+    //  * @param vector1 lvalue
+    //  * @param vector2 rvalue
+    //  * @return numerical cross product when 2D(at index 0), a vector of cross
+    //  *         product when 3D
+    //  * @throws Exception when dimension mismatch or not 2D or not 3D.
+    //  */
+    // public float[] cross(float[] vector1, float[] vector2) throws Exception {
+    //     if (vector1.length == 2 && vector2.length == 2) {
+    //         return new float[] { vector1[0] * vector2[1] - vector1[1] * vector2[2] };
+    //     } else if (vector1.length == 3 && vector2.length == 3) {
+    //         return new float[] { vector1[1] * vector2[2] - vector1[2] * vector2[1],
+    //                 vector1[2] * vector2[0] - vector1[0] * vector2[2],
+    //                 vector1[0] * vector2[1] - vector1[1] * vector2[0] };
+    //     } else {
+    //         throw new Exception("Invalid dimension");
+    //     }
+    // }
 
+    // /**
+    //  * Vector normalization
+    //  * 
+    //  * @param vector to normalize
+    //  * @return a zero vector if length of given vector is 0, otherwise a normalized
+    //  *         vector
+    //  */
+    // public float[] normalize(float[] vector) {
+    //     float unit = 0;
+    //     float[] ret = new float[vector.length];
 
-    /**
-     * 2D & 3D vector cross product
-     * 
-     * @param vector1 lvalue
-     * @param vector2 rvalue
-     * @return numerical cross product when 2D(at index 0), a vector of cross product when 3D
-     * @throws Exception when dimension mismatch or not 2D or not 3D.
-     */
-    public float[] cross(float[] vector1, float[] vector2) throws Exception 
+    //     for (float f : vector) {
+    //         unit += f * f;
+    //     }
+
+    //     if (unit == 0.0f) {
+    //         return ret;
+    //     }
+
+    //     unit = sqrt(unit);
+
+    //     for (int i = 0; i < ret.length; i++) {
+    //         ret[i] = vector[i] / unit;
+    //     }
+
+    //     return ret;
+    // }
+
+    // /**
+    //  * 2D & 3D vector dot product
+    //  * 
+    //  * @param vector1 lvalue
+    //  * @param vector2 rvalue
+    //  * @return numerical dot product of vector1 and vector2
+    //  * @throws Exception when dimension mismatch or not 2D or not 3D.
+    //  */
+    // public float dot(float[] vector1, float[] vector2) throws Exception {
+    //     if (vector1.length == 2 && vector2.length == 2) {
+    //         return vector1[0] * vector2[0] + vector1[1] * vector2[1];
+    //     } else if (vector1.length == 3 && vector2.length == 3) {
+    //         return vector1[0] * vector2[0] + vector1[1] * vector2[1] + vector1[2] * vector2[2];
+    //     } else {
+    //         throw new Exception("Invalid dimension");
+    //     }
+    // }
+
+    // /**
+    //  * 2D & 3D vector substraction.
+    //  * 
+    //  * @param vector1 lvalue
+    //  * @param vector2 rvalue
+    //  * @return a new vector representing vector1-vector2
+    //  * @throws Exception when dimension mismatch or not 2D or not 3D.
+    //  */
+    // public float[] subtract(float[] vector1, float vector2[]) throws Exception {
+    //     if (vector1.length == 2 && vector2.length == 2) {
+    //         return new float[] { vector1[0] - vector2[0], vector1[1] - vector2[1] };
+    //     } else if (vector1.length == 3 && vector2.length == 3) {
+    //         return new float[] { vector1[0] - vector2[0], vector1[1] - vector2[1], vector1[2] - vector2[2] };
+    //     } else {
+    //         throw new Exception("Invalid dimension");
+    //     }
+    // }
+
+    class Triangle 
     {
-        if (vector1.length == 2 && vector2.length == 2)
-        {
-            return new float[]{ vector1[0] * vector2[1] - vector1[1] * vector2[2] };
+        Triangle(float[] V1, float[] V2, float[] V3) 
+        { // does DEEP copy!!
+            vertex1 = new Vector(V1);
+            vertex2 = new Vector(V2);
+            vertex3 = new Vector(V3);
+
+            notifyComponentChange();
         }
-        else if (vector1.length == 3 && vector2.length == 3)
+
+        public Triangle(Vector v1, Vector v2, Vector v3) 
         {
-            return new float[]
+            this.vertex1 = v1;
+            this.vertex2 = v2;
+            this.vertex3 = v3;
+
+            notifyComponentChange();
+        }
+
+        public void notifyComponentChange() 
+        {
+            projectedVertex1 = new Vector(project(vertex1.payload));
+            projectedVertex2 = new Vector(project(vertex2.payload));
+            projectedVertex3 = new Vector(project(vertex3.payload));
+            
+            try 
             {
-                vector1[1] * vector2[2] - vector1[2] * vector2[1],
-                vector1[2] * vector2[0] - vector1[0] * vector2[2],
-                vector1[0] * vector2[1] - vector1[1] * vector2[0]
-            };
+                edge1 = vertex2.subtract(vertex1);
+                edge2 = vertex3.subtract(vertex2);
+                edge3 = vertex1.subtract(vertex3);
+
+                normal = edge1.cross(edge2).normalize();
+            } 
+            catch (Exception e) 
+            {
+                e.printStackTrace();
+            }
+            
+            degenerate = (normal.norm() == 0) ? true : false;
+            centre = new Vector
+            (
+                (vertex1.payload[Vector.X] + vertex2.payload[Vector.X] + vertex3.payload[Vector.X]) / 3,
+                (vertex1.payload[Vector.Y] + vertex2.payload[Vector.Y] + vertex3.payload[Vector.Y]) / 3,
+                (vertex1.payload[Vector.Z] + vertex2.payload[Vector.Z] + vertex3.payload[Vector.Z]) / 3
+            );
         }
-        else
-        {
-            throw new Exception("Invalid dimension");
-        }
+
+        // position data. in 3D space
+        Vector vertex1; // 3 triangle vertices
+        Vector vertex2;
+        Vector vertex3;
+
+        // projected data. On the screen raster
+        Vector projectedVertex1; // (p)rojected vertices
+        Vector projectedVertex2;
+        Vector projectedVertex3;
+        
+        Vector edge1;
+        Vector edge2;
+        Vector edge3;
+
+        Vector normal;
+        Vector centre;
+
+        boolean degenerate;
     }
 
 
-
-    /**
-     * Vector normalization
-     * // TODO: test pending
-     * @param vector to normalize
-     * @return a zero vector if length of given vector is 0, otherwise a normalized vector
-     */
-    public float[] normalize(float[] vector) 
+    class Vector
     {
-        float unit = 0;
-        float[] ret = new float[vector.length];
+        public static final int X = 0;
+        public static final int Y = 1;
+        public static final int Z = 2;
 
-        for (float f : vector) 
+        public final int length;
+        private float[] payload;
+
+        public Vector(float... components)
         {
-            unit += f * f;
+            this.payload = new float[components.length];
+            this.length = this.payload.length;
+            
+            for (int i = 0; i < components.length; i++) 
+            {
+                payload[i] = components[i];
+            }
         }
 
-        if (unit == 0.0f)
+        public float[] toFloatArray()
         {
-            return ret;
+            return this.payload;
+        }
+
+        /**
+         * 2D & 3D vector substraction.
+         * 
+         * @param rvalue rvalue
+         * @return a new vector representing vector1-vector2
+         * @throws Exception when dimension mismatch or not 2D or not 3D.
+         */
+        public Vector subtract(float... rvalue) throws Exception
+        {
+            if (rvalue.length != this.length)
+            {
+                throw new Exception("Invalid dimension");
+            }
+            else
+            {
+                var ret = new float[this.length];
+                
+                for (int i = 0; i < ret.length; i++) 
+                {
+                    ret[i] = this.payload[i] - rvalue[i];
+                }
+
+                return new Vector(ret);
+            }
+        }
+
+        /**
+         * 2D & 3D vector substraction.
+         * 
+         * @param rvalue rvalue
+         * @return a new vector representing vector1-vector2
+         * @throws Exception when dimension mismatch or not 2D or not 3D.
+         */
+        public Vector subtract(Vector rvalue) throws Exception
+        {
+            return this.subtract(rvalue.payload);
         }
         
-        unit = sqrt(unit);
-
-        for (int i = 0; i < ret.length; i++) 
+        /**
+         * In-place 2D & 3D vector substraction.
+         * 
+         * @param rvalue rvalue
+         * @throws Exception when dimension mismatch or not 2D or not 3D.
+         */
+        public void subtractInPlace(float... rvalue) throws Exception
         {
-            ret[i] = vector[i] / unit;
+            if (rvalue.length != this.length)
+            {
+                throw new Exception("Invalid dimension");
+            }
+            else
+            {
+                var ret = new float[this.length];
+                
+                for (int i = 0; i < ret.length; i++) 
+                {
+                    this.payload[i] -= rvalue[i];
+                }
+            }
         }
 
-        return ret;
-    }
-
-
-
-    /**
-     * 2D & 3D vector dot product
-     * // TODO: test pending
-     * @param vector1 lvalue
-     * @param vector2 rvalue
-     * @return numerical dot product of vector1 and vector2
-     * @throws Exception when dimension mismatch or not 2D or not 3D.
-     */
-    public float dot(float[] vector1, float[] vector2) throws Exception 
-    {
-        if (vector1.length == 2 && vector2.length == 2)
+        /**
+         * In-place 2D & 3D vector substraction.
+         * 
+         * @param rvalue rvalue
+         * @throws Exception when dimension mismatch or not 2D or not 3D.
+         */
+        public void subtractInPlace(Vector rvalue) throws Exception
         {
-            return vector1[0] * vector2[0] + vector1[1] * vector2[1];
+            this.subtractInPlace(rvalue.payload);
         }
-        else if (vector1.length == 3 && vector2.length == 3)
-        {
-            return vector1[0] * vector2[0] + vector1[1] * vector2[1] + vector1[2] * vector2[2];
-        }
-        else
-        {
-            throw new Exception("Invalid dimension");
-        }
-    }
 
+        /**
+         * 2D & 3D vector dot product
+         * 
+         * @param rvalue rvalue
+         * @return numerical dot product of vector1 and vector2
+         * @throws Exception when dimension mismatch or not 2D or not 3D.
+         */
+        public float dot(float... rvalue) throws Exception
+        {
+            if (this.length == 2 && rvalue.length == 2)
+            {
+                return this.payload[Vector.X] * rvalue[Vector.X] + this.payload[Vector.Y] * rvalue[Vector.Y];
+            }
+            else if (this.length == 3 && rvalue.length == 3)
+            {
+                return this.payload[Vector.X] * rvalue[Vector.X] + this.payload[Vector.Y] * rvalue[Vector.Y] + this.payload[Vector.Z] * rvalue[Vector.Z];
+            }
+            else
+            {
+                throw new Exception("Invalid dimension");
+            }
+        }
 
-
-    /**
-     * 2D & 3D vector substraction.
-     * // TODO: test pending
-     * @param vector1 lvalue
-     * @param vector2 rvalue
-     * @return a new vector representing vector1-vector2
-     * @throws Exception when dimension mismatch or not 2D or not 3D.
-     */
-    public float[] subtract(float[] vector1, float vector2[]) throws Exception 
-    {
-        if (vector1.length == 2 && vector2.length == 2)
+        /**
+         * Vector normalization
+         * 
+         * @return a zero vector if length of given vector is 0, otherwise a normalized vector
+         */
+        public Vector normalize()
         {
-            return new float[] { vector2[0] - vector1[0], vector2[1] - vector1[1] };
-        }
-        else if (vector1.length == 3 && vector2.length == 3)
-        {
-            return new float[] { vector2[0] - vector1[0], vector2[1] - vector1[1], vector2[2] - vector1[2] };
-        }
-        else
-        {
-            throw new Exception("Invalid dimension");
-        }
-    }
+            float unit = 0;
+            float[] ret = Arrays.copyOf(this.payload, this.payload.length);
     
+            for (float f : this.payload) 
+            {
+                unit += f * f;
+            }
+    
+            if (unit == 0.0f)
+            {
+                return new Vector(0f);
+            }
+            
+            unit = sqrt(unit);
+    
+            for (int i = 0; i < ret.length; i++) 
+            {
+                ret[i] /= unit;
+            }
+    
+            return new Vector(ret);
+        }
+    
+        /**
+         * In-place Vector normalization. <p>
+         * 
+         * If the length of the subject vector is 0, nothing will happen.
+         */
+        public void normalizeInPlace()
+        {
+            float unit = 0;
+    
+            for (float f : this.payload) 
+            {
+                unit += f * f;
+            }
+    
+            if (unit == 0.0f)
+            {
+                return;
+            }
+            
+            unit = sqrt(unit);
+    
+            for (int i = 0; i < this.payload.length; i++) 
+            {
+                this.payload[i] /= unit;
+            }
+        }
 
+        /**
+         * 2D & 3D vector cross product
+         * 
+         * @param rvalue rvalue
+         * @return numerical cross product when 2D(the only component in the Vector object),
+         *  a vector of cross product when 3D
+         * @throws Exception when dimension mismatch or not 2D or not 3D.
+         */
+        public Vector cross(float... rvalue) throws Exception
+        {
+            if (this.length == 2 && rvalue.length == 2)
+            {
+                return new Vector(new float[]{ this.payload[Vector.X] * rvalue[Vector.Y] - this.payload[Vector.Y] * rvalue[Vector.X] });
+            }
+            else if (this.length == 3 && rvalue.length == 3)
+            {
+                return new Vector(new float[]
+                {
+                    this.payload[Vector.Y] * rvalue[Vector.Z] - this.payload[Vector.Z] * rvalue[Vector.Y],
+                    this.payload[Vector.Z] * rvalue[Vector.X] - this.payload[Vector.X] * rvalue[Vector.Z],
+                    this.payload[Vector.X] * rvalue[Vector.Y] - this.payload[Vector.Y] * rvalue[Vector.X]
+                });
+            }
+            else
+            {
+                throw new Exception("Invalid dimension");
+            }
+        }
+
+        /**
+         * 2D & 3D vector cross product
+         * 
+         * @param rvalue rvalue
+         * @return numerical cross product when 2D(the only component in the Vector object),
+         *  a vector of cross product when 3D
+         * @throws Exception when dimension mismatch or not 2D or not 3D.
+         */
+        public Vector cross(Vector rvalue) throws Exception
+        {
+            return this.cross(rvalue.payload);
+        }
+
+        /**
+         * 2D & 3D vector in-place cross product
+         * 
+         * @param rvalue rvalue
+         * @throws Exception when dimension mismatch or not 3D.
+         */
+        public void crossInPlace(float... rvalue) throws Exception
+        {
+            if (this.length == 2 && rvalue.length == 2)
+            {
+                throw new Exception("Cannot do cross product in place on 2D vector.");
+            }
+            else if (this.length == 3 && rvalue.length == 3)
+            {
+                this.payload = new float[]
+                {
+                    this.payload[Vector.Y] * rvalue[Vector.Z] - this.payload[Vector.Z] * rvalue[Vector.Y],
+                    this.payload[Vector.Z] * rvalue[Vector.X] - this.payload[Vector.X] * rvalue[Vector.Z],
+                    this.payload[Vector.X] * rvalue[Vector.Y] - this.payload[Vector.Y] * rvalue[Vector.X]
+                };
+            }
+            else
+            {
+                throw new Exception("Invalid dimension");
+            }
+        }
+        
+        /**
+         * 2D & 3D vector in-place cross product
+         * 
+         * @param rvalue rvalue
+         * @throws Exception when dimension mismatch or not 3D.
+         */
+        public void crossInPlace(Vector rvalue) throws Exception
+        {
+            this.crossInPlace(rvalue.payload);
+        }
+
+        public float norm()
+        {
+            float ret = 0;
+    
+            for (float f : this.payload) 
+            {
+                ret += f * f;
+            }
+                
+            return sqrt(ret);
+        }
+    }
 
     static public void main(String[] passedArgs) 
     ////////////////////////////////          \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -355,26 +649,7 @@ public class Assign1Handout extends PApplet
         bresLine(0 + offset, -dlarge, 0 + offset, dlarge);
     }
 
-    class Triangle {
-        Triangle(float[] V1, float[] V2, float[] V3) { // does DEEP copy!!
-            v1 = Arrays.copyOf(V1, V1.length);
-            v2 = Arrays.copyOf(V2, V2.length);
-            v3 = Arrays.copyOf(V3, V3.length);
-        }
-
-        // position data. in 3D space
-        float[] v1; // 3 triangle vertices
-        float[] v2;
-        float[] v3;
-
-        // projected data. On the screen raster
-        float[] pv1; // (p)rojected vertices
-        float[] pv2;
-        float[] pv3;
-
-        // add other things as needed, like normals (face, vectors), edge vectors,
-        // colors, etc.
-    }
+    // put class Triangle back here
 
     Triangle[] sphereList;
     Triangle[] rotatedList;
@@ -539,12 +814,13 @@ public class Assign1Handout extends PApplet
                 continue;
 
             // has to be re-projected each time because of animation
-            t.pv1 = project(t.v1);
-            t.pv2 = project(t.v2);
-            t.pv3 = project(t.v3);
+            // unnecessary, projected vector now calculated on Triangle init
+            // t.pv1 = project(t.v1);
+            // t.pv2 = project(t.v2);
+            // t.pv3 = project(t.v3);
 
             // null is clipped vertex
-            if (!(t.pv1 == null || t.pv2 == null || t.pv3 == null))
+            if (!(t.projectedVertex1 == null || t.projectedVertex2 == null || t.projectedVertex3 == null))
                 draw2DTriangle(t, lighting, shading);
         }
     }
@@ -553,15 +829,15 @@ public class Assign1Handout extends PApplet
     public void rotateSphere(Triangle[] original, Triangle[] rotated, float theta) {
         for (int i = 0; i < original.length; i++) {
             if (rotated[i] == null)
-                rotated[i] = setupTriangle(new Triangle(original[i].v1, original[i].v2, original[i].v3));
+                rotated[i] = setupTriangle(new Triangle(original[i].vertex1, original[i].vertex2, original[i].vertex3));
             else {
-                System.arraycopy(original[i].v1, 0, rotated[i].v1, 0, original[i].v1.length);
-                System.arraycopy(original[i].v2, 0, rotated[i].v2, 0, original[i].v2.length);
-                System.arraycopy(original[i].v3, 0, rotated[i].v3, 0, original[i].v3.length);
+                System.arraycopy(original[i].vertex1.payload, 0, rotated[i].vertex1.payload, 0, original[i].vertex1.length);
+                System.arraycopy(original[i].vertex2.payload, 0, rotated[i].vertex2.payload, 0, original[i].vertex2.length);
+                System.arraycopy(original[i].vertex3.payload, 0, rotated[i].vertex3.payload, 0, original[i].vertex3.length);
 
-                rotateVertex(rotated[i].v1, theta);
-                rotateVertex(rotated[i].v2, theta);
-                rotateVertex(rotated[i].v3, theta);
+                rotateVertex(rotated[i].vertex1.payload, theta);
+                rotateVertex(rotated[i].vertex2.payload, theta);
+                rotateVertex(rotated[i].vertex3.payload, theta);
                 setupTriangle(rotated[i]);
             }
         }
