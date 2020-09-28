@@ -1,59 +1,44 @@
-public class Scrach {
-    public static void main(String[] args) {
-        float[] a = new float[] { 564, 626, 2 };
-        float[] b = new float[] { 55, -51, 44 };
-
-        try {
-            var ans = normalize(v3d(566.7468f,4813.86f, 843.8777f));
-            for (float f : ans) {
-                System.out.println(f);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public static float[] v3d(float x, float y, float z)
+public class Scrach
+{
+    public static void main(String[] args)
     {
-        return new float[] {x, y, z};
-    }
+        a aa = new a();
 
-    public static float[] v2d(float x, float y)
+        aa.print();
+
+        aa.ia[0] = 6;
+
+        aa.print();
+
+        aa.getIa()[1] = 6;
+        aa.print();
+    }
+}
+
+
+
+class a
+{
+    public int[] ia;
+
+
+    public a()
     {
-        return new float[] {x, y};
+        ia = new int[] { 1, 2, 3 };
     }
-    
 
-    /**
-     * Vector normalization
-     * // TODO: test pending
-     * @param vector to normalize
-     * @return a zero vector if length of given vector is 0, otherwise a normalized vector
-     */
-    public static float[] normalize(float[] vector) 
+
+    public int[] getIa()
     {
-        float unit = 0;
-        float[] ret = new float[vector.length];
-
-        for (float f : vector) 
-        {
-            unit += f * f;
-        }
-
-        if (unit == 0.0f)
-        {
-            return ret;
-        }
-        
-        unit = (float) Math.sqrt(unit);
-
-        for (int i = 0; i < ret.length; i++) 
-        {
-            ret[i] = vector[i] / unit;
-        }
-
-        return ret;
+        return ia;
     }
 
+
+    public void print()
+    {
+        for (int i : ia)
+        {
+            System.out.println(i);
+        }
+    }
 }
