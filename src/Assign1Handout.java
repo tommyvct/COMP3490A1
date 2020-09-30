@@ -21,7 +21,50 @@ public class Assign1Handout extends PApplet
     // store in an array then loop over those points and setup your triangles.
     public Triangle[] makeSphere(int radius, int divisions)
     {
-        return new Triangle[0];
+        float unitPi = PI / divisions;
+        float unit2PI = unitPi * 2;
+
+        float theta = 0f; // from 0 to 2Pi
+        float phi = 0f;   // from 0 to Pi
+
+        ArrayList<Vector> points = new ArrayList<Vector>();
+
+        for (int i = 0; i < divisions; i++) 
+        {
+            for (int j = 0; j < divisions; j++)
+            {
+                points.add(new Vector(
+                    (float) radius * (float) Math.sin(phi) * (float) Math.sin(theta),
+                    (float) radius * (float) Math.cos(phi),
+                    (float) radius * (float) Math.sin(phi) * (float) Math.cos(theta)
+                ));
+
+                theta += unit2PI;
+            }    
+            phi += unitPi;
+        }
+
+        ArrayList<Triangle> triangleList = new ArrayList<Triangle>();
+        // TODO: proper Tessellation
+        for (int i = 0; i < points.size() - 2; i++)
+        {
+            Triangle t = new Triangle(
+                points.get(i + 0),
+                points.get(i + 1),
+                points.get(i + 2)
+            );
+
+            if (t.degenerate || t.projectedDegenerate)
+            {
+                continue;
+            }
+            else
+            {
+                triangleList.add(t);
+            }
+        }
+    
+        return triangleList.toArray(new Triangle[0]);
     }
 
     // // takes a new triangle, and calculates it's normals and edge vectors
@@ -54,11 +97,22 @@ public class Assign1Handout extends PApplet
         }
 
         fillTriangle(t, shading);
-        stroke(256, 0, 0);
-        bresLine(t.projectedVertex1, t.projectedVertex2);
-        bresLine(t.projectedVertex2, t.projectedVertex3);
-        bresLine(t.projectedVertex3, t.projectedVertex1);
-        bresLine(t.projectedCentre, t.projectedNormal);
+
+        if (doOutline)
+        {
+            stroke(256, 0, 0);
+            bresLine(t.projectedVertex1, t.projectedVertex2);
+            bresLine(t.projectedVertex2, t.projectedVertex3);
+            bresLine(t.projectedVertex3, t.projectedVertex1);
+            try
+            {
+                bresLine(t.projectedCentre, t.projectedCentre.add(t.projectedNormal));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -69,15 +123,10 @@ public class Assign1Handout extends PApplet
     // - uses POINTS to draw on the raster
     public void fillTriangle(Triangle t, Shading shading)
     {
-        // TODO: eliminate artifacts
         if (shading == Shading.NONE)
         {
             return;
         }
-
-        ArrayList<int[]> points2Fill = new ArrayList<int[]>();
-        ArrayList<int[]> what2Fill = new ArrayList<int[]>(); // TODO: shading?
-
 
         beginShape(POINTS);
         for (int y = (int) t.projectedBoxBottom; y < (int) t.projectedBoxTop; y++)
@@ -121,12 +170,12 @@ public class Assign1Handout extends PApplet
     public void bresLine(int fromX, int fromY, int toX, int toY)
     {
         //////// FAILSAFE \\\\\\\\\\\\\
-        beginShape(LINES);
+        // beginShape(LINES);
 
-        vertex(fromX, fromY);
-        vertex(toX, toY);
+        // vertex(fromX, fromY);
+        // vertex(toX, toY);
 
-        endShape();
+        // endShape();
         ///////////////////////////////
 
         boolean flip = false;
@@ -202,7 +251,6 @@ public class Assign1Handout extends PApplet
 
     public void bresLine(Vector from, Vector to)
     {
-        // TODO: figure out mow to map float into int
         bresLine(
             (int) from.payload[Vector.X], (int) from.payload[Vector.Y],
             (int) to.payload[Vector.X], (int) to.payload[Vector.Y]
@@ -248,6 +296,7 @@ public class Assign1Handout extends PApplet
                 edge3 = vertex1.subtract(vertex3);
                 
                 normal = edge1.cross(edge2).normalize();
+                if (normal.length != 3) print("");
                 area = edge1.cross(edge2).norm() / 2;
             }
             catch (Exception e)
@@ -273,8 +322,8 @@ public class Assign1Handout extends PApplet
                 projectedEdge3 = projectedVertex1.subtract(projectedVertex3);
                 projectedArea = projectedEdge1.cross2d(projectedEdge2) / 2;
                 
-                degenerate = (area == 0f) ? true : false; // area == 0
-                projectedDegenerate = projectedArea == 0f ? true : false;
+                degenerate = (area < 1f) ? true : false; // area == 0
+                projectedDegenerate = projectedArea < 1f ? true : false;
                 projectedCounterClockwiseWinding = (projectedArea > 0) ? true : false;
             }
             catch (Exception e)
@@ -282,7 +331,8 @@ public class Assign1Handout extends PApplet
                 e.printStackTrace();
             }
 
-            projectedNormal = new Vector(project(normal.payload));
+            projectedNormal = new Vector(project(normal.payload)).normalize();
+            projectedNormal.scale(30f);
             projectedCentre = new Vector(project(centre.payload));
 
             projectedBoxLeft = min(
@@ -313,12 +363,13 @@ public class Assign1Handout extends PApplet
             else 
             {
                 try {
-                    return 
-                        (projectedEdge1.cross2d(p.subtract(projectedVertex1)) > 0f) ==
-                        (projectedEdge2.cross2d(p.subtract(projectedVertex2)) > 0f) == 
-                        (projectedEdge3.cross2d(p.subtract(projectedVertex3)) > 0f);
-                    
-                } catch (Exception e) {
+                    boolean condition1 = (projectedEdge1.cross2d(p.subtract(projectedVertex1)) > 0f);
+                    boolean condition2 = (projectedEdge2.cross2d(p.subtract(projectedVertex2)) > 0f);
+                    boolean condition3 = (projectedEdge3.cross2d(p.subtract(projectedVertex3)) > 0f);
+                    return condition1 == condition2 && condition1 ==  condition3 && condition2 == condition3;
+                }
+                catch (Exception e)
+                {
                     e.printStackTrace();
                     return false;
                 }   
@@ -369,14 +420,14 @@ public class Assign1Handout extends PApplet
 
         public String toString()
         {
-            String ret = "<" + payload[0];
+            String ret = "(" + payload[0];
 
             for (int i = 1; i < payload.length; i++) {
-                ret += ", ";
+                ret += "f, ";
                 ret += payload[i];
             }
 
-            ret += ">";
+            ret += "f)";
 
             return ret;
         }
@@ -535,7 +586,7 @@ public class Assign1Handout extends PApplet
             }
             if (unit == 0.0f)
             {
-                return new Vector(0f);
+                return new Vector(new float[ret.length]);
             }
             unit = sqrt(unit);
 
@@ -605,11 +656,12 @@ public class Assign1Handout extends PApplet
         {
             if (this.length == 3 && rvalue.length == 3)
             {
+                float[] components = new float[] {
+                    this.payload[Vector.Y] * rvalue[Vector.Z] - this.payload[Vector.Z] * rvalue[Vector.Y],
+                    this.payload[Vector.Z] * rvalue[Vector.X] - this.payload[Vector.X] * rvalue[Vector.Z],
+                    this.payload[Vector.X] * rvalue[Vector.Y] - this.payload[Vector.Y] * rvalue[Vector.X] };
                 return new Vector(
-                    new float[] {
-                        this.payload[Vector.Y] * rvalue[Vector.Z] - this.payload[Vector.Z] * rvalue[Vector.Y],
-                        this.payload[Vector.Z] * rvalue[Vector.X] - this.payload[Vector.X] * rvalue[Vector.Z],
-                        this.payload[Vector.X] * rvalue[Vector.Y] - this.payload[Vector.Y] * rvalue[Vector.X] }
+                    components
                 );
             }
             else
@@ -681,6 +733,14 @@ public class Assign1Handout extends PApplet
             }
             return sqrt(ret);
         }
+
+        public void scale(float factor)
+        {
+            for (int i = 0; i < this.payload.length; i++)
+            {
+                this.payload[i] *= factor;
+            }
+        }
     }
 
 
@@ -699,8 +759,15 @@ public class Assign1Handout extends PApplet
             );
         } while (t.projectedDegenerate || !t.projectedCounterClockwiseWinding);
         
+        // t = new Triangle(
+        //     new Vector(-141.22969f, -71.76317f, -46.007675f),
+        //     new Vector(95.48776f, 66.87723f, 145.24771f),
+        //     new Vector(32.29593f, 45.46768f, -47.11788f)
+        // );
+
         println(t.toString());
         draw2DTriangle(t, Lighting.FLAT, Shading.BARYCENTRIC);
+
     }
 
 
@@ -789,10 +856,10 @@ public class Assign1Handout extends PApplet
         resetMatrix();
         colorMode(RGB, 1.0f);
 
-        frameRate(1);
-        // sphereList = makeSphere(SPHERE_SIZE, 10);
-        // rotatedList = new Triangle[sphereList.length];
-        // announceSettings();
+        // frameRate(1);
+        sphereList = makeSphere(SPHERE_SIZE, 10);
+        rotatedList = new Triangle[sphereList.length];
+        announceSettings();
     }
 
 
@@ -810,22 +877,39 @@ public class Assign1Handout extends PApplet
     {
         clear();
 
-        // if (rotate)
-        // {
-        // theta += delta;
-        // while (theta > PI * 2)
-        // theta -= PI * 2;
-        // }
-        // if (lineTest)
-        // lineTest();
-        // else
-        // {
-        // rotateSphere(sphereList, rotatedList, theta);
-        // drawSphere(rotatedList, lighting, shading);
-        // }
+        if (rotate)
+        {
+            theta += delta;
+            while (theta > PI * 2)
+            theta -= PI * 2;
+        }
 
-        triangleTest();
+        if (lineTest)
+            lineTest();
+        else
+        {
+            rotateSphere(sphereList, rotatedList, theta);
+            drawSphere(rotatedList, lighting, shading);
+        }
+
+        if (mousePressed)
+        {
+            println("(" + (mouseX-320f) + ", " + (320f-(mouseY)) + ")");
+        }
     }
+
+
+    // public void draw()
+    // {
+    //     clear();
+
+    //     triangleTest();
+
+    //     if (mousePressed)
+    //     {
+    //         println("(" + (mouseX-320f) + ", " + (320f-(mouseY)) + ")");
+    //     }
+    // }
 
 
     final char KEY_LIGHTING = 'l';
@@ -835,7 +919,6 @@ public class Assign1Handout extends PApplet
     final char KEY_NORMALS = 'n';
     final char KEY_ACCELERATED = '!';
     final char KEY_LINE_TEST = 't';
-    final char KEY_TRIANGLE_TEST = 'r';
     final char KEY_FPS_1 = '1';
     final char KEY_FPS_05 = '5';
     final char KEY_FPS_NORMAL = '6';
@@ -862,10 +945,10 @@ public class Assign1Handout extends PApplet
     boolean normals = false;
     boolean accelerated = false;
     boolean lineTest = false;
-    boolean triangleTest = true;
 
 
-    public void kkeyPressed()
+
+    public void keyPressed()
     {
         if (key == KEY_SHADING)
         {
@@ -892,10 +975,6 @@ public class Assign1Handout extends PApplet
         if (key == KEY_LINE_TEST)
             lineTest = !lineTest;
 
-        if (key == KEY_TRIANGLE_TEST)
-        {
-            triangleTest = !triangleTest;
-        }
         if (key == KEY_FPS_05)
         {
             frameRate(0.5f);

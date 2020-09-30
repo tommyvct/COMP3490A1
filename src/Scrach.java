@@ -1,44 +1,93 @@
-public class Scrach
+import processing.core.*;
+import processing.data.*;
+import processing.event.*;
+import processing.opengl.*;
+
+import java.util.ArrayList;
+
+
+
+public class Scrach extends PApplet
 {
-    public static void main(String[] args)
+    public static void main(String[] passedArgs)
     {
-        a aa = new a();
+        String[] appletArgs = new String[] { "Scrach" };
 
-        aa.print();
-
-        aa.ia[0] = 6;
-
-        aa.print();
-
-        aa.getIa()[1] = 6;
-        aa.print();
-    }
-}
-
-
-
-class a
-{
-    public int[] ia;
-
-
-    public a()
-    {
-        ia = new int[] { 1, 2, 3 };
-    }
-
-
-    public int[] getIa()
-    {
-        return ia;
-    }
-
-
-    public void print()
-    {
-        for (int i : ia)
+        if (passedArgs != null)
         {
-            System.out.println(i);
+            PApplet.main(concat(appletArgs, passedArgs));
         }
+        else
+        {
+            PApplet.main(appletArgs);
+        }
+    }
+
+
+    public void settings()
+    {
+        // size(640, 640);
+        size(640, 640, P3D);
+    }
+
+
+    public void setup()
+    {
+        ortho(-320, 320, 320, -320); // hard coded, 640x640 canvas, RHS
+        resetMatrix();
+        colorMode(RGB, 1.0f);
+        background(0);
+    }
+
+
+    public void draw()
+    {
+        clear();
+        stroke(255, 255, 255);
+        strokeWeight(3);
+        int divisions = 10;
+        int radius = 300;
+        float unitPi = PI / divisions;
+        float unit2PI = unitPi * 2;
+
+        float theta = 0f; // from 0 to 2Pi
+        float phi = 0f; // from 0 to Pi
+
+        // ArrayList<Vector> points = new ArrayList<Vector>();
+        for (int i = 0; i < divisions; i++)
+        {
+            for (int j = 0; j < divisions; j++)
+            {
+                float[] t = new float[] {
+                    (float) radius * (float) Math.sin(phi) * (float) Math.sin(theta),
+                    (float) radius * (float) Math.cos(phi),
+                    (float) radius * (float) Math.sin(phi) * (float) Math.cos(theta)
+                };
+                
+                t = project(t);
+                beginShape(POINTS);
+                vertex(t[0], t[1]);
+                endShape();
+
+                theta += unit2PI;
+            }
+            phi += unitPi;
+        }
+    }
+
+
+    final float[] EYE = { 0, 0, 600 };
+    final float PERSPECTIVE = 0.002f; // 1/500, don't bother changing
+
+
+    public float[] project(float[] v)
+    {
+        float adjZ = v[Z] - EYE[Z]; // RHS, Z into screen
+        if (adjZ > 0)
+            return null; // clipping plane
+        adjZ *= -1;
+        float px = v[X] / (adjZ * PERSPECTIVE);
+        float py = v[Y] / (adjZ * PERSPECTIVE);
+        return new float[] { px, py };
     }
 }
