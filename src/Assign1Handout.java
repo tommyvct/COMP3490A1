@@ -21,57 +21,63 @@ public class Assign1Handout extends PApplet
     // store in an array then loop over those points and setup your triangles.
     public Triangle[] makeSphere(int radius, int divisions)
     {
-        float unitPi = PI / divisions;
-        float unit2PI = unitPi * 2;
+        float unitTheta = 2 * PI / divisions; // from 0 to 2Pi
+        float unitPhi = PI / divisions;   // from 0 to Pi
 
-        float theta = 0f; // from 0 to 2Pi
-        float phi = 0f;   // from 0 to Pi
+        Vector[][] points = new Vector[divisions + 1][divisions];
 
-        ArrayList<Vector> points = new ArrayList<Vector>();
-
-        for (int i = 0; i < divisions; i++) 
+        for (int i = 0; i < divisions + 1; i++) 
         {
             for (int j = 0; j < divisions; j++)
             {
-                points.add(new Vector(
-                    (float) radius * (float) Math.sin(phi) * (float) Math.sin(theta),
-                    (float) radius * (float) Math.cos(phi),
-                    (float) radius * (float) Math.sin(phi) * (float) Math.cos(theta)
-                ));
-
-                theta += unit2PI;
+                points[i][j] = new Vector(
+                    (float) radius * (float) Math.sin(unitPhi * i) * (float) Math.sin(unitTheta * j),
+                    (float) radius * (float) Math.cos(unitPhi * i),
+                    (float) radius * (float) Math.sin(unitPhi * i) * (float) Math.cos(unitTheta * j)
+                );
             }    
-            phi += unitPi;
         }
 
         ArrayList<Triangle> triangleList = new ArrayList<Triangle>();
-        // TODO: proper Tessellation
-        for (int i = 0; i < points.size() - 2; i++)
+
+        for (int i = 0; i < divisions; i++) 
         {
-            Triangle t = new Triangle(
-                points.get(i + 0),
-                points.get(i + 1),
-                points.get(i + 2)
+            for (int j = 0; j < divisions - 1; j++)
+            {
+                Triangle t1 = new Triangle(
+                    points[i][j],
+                    points[i][j + 1],
+                    points[i + 1][j + 1]
+                );
+
+                Triangle t2 = new Triangle(
+                    points[i][j],
+                    points[i + 1][j],
+                    points[i + 1][j + 1]
+                );
+
+                triangleList.add(t1);
+                triangleList.add(t2);
+            }
+
+            Triangle last1 = new Triangle(
+                points[i][divisions - 1],
+                points[i][0],
+                points[i + 1][0]
             );
 
-            if (t.degenerate || t.projectedDegenerate)
-            {
-                continue;
-            }
-            else
-            {
-                triangleList.add(t);
-            }
+            Triangle last2 = new Triangle(
+                points[i][divisions - 1],
+                points[i + 1][divisions - 1],
+                points[i + 1][0]
+            );
+
+            triangleList.add(last1);
+            triangleList.add(last2);
         }
-    
+
         return triangleList.toArray(new Triangle[0]);
     }
-
-    // // takes a new triangle, and calculates it's normals and edge vectors
-    // public Triangle setupTriangle(Triangle t)
-    // {
-    // return t;
-    // }
 
 
     // This function draws the 2D, already projected triangle, on the raster
@@ -90,11 +96,12 @@ public class Assign1Handout extends PApplet
     // those with your versions once it works.
     public void draw2DTriangle(Triangle t, Lighting lighting, Shading shading)
     {
-        if (t.projectedDegenerate || !t.projectedCounterClockwiseWinding)
-        {
-            println(t.projectedDegenerate ? "degenerate" : "CW Winding");
-            return;
-        }
+        // TODO: Culling didn't work! 
+        // if (t.degenerate || t.projectedDegenerate || !t.projectedCounterClockwiseWinding)
+        // {
+        //     // println(t.degenerate || t.projectedDegenerate ? "degenerate" : "CW Winding");
+        //     return;
+        // }
 
         fillTriangle(t, shading);
 
@@ -104,14 +111,14 @@ public class Assign1Handout extends PApplet
             bresLine(t.projectedVertex1, t.projectedVertex2);
             bresLine(t.projectedVertex2, t.projectedVertex3);
             bresLine(t.projectedVertex3, t.projectedVertex1);
-            try
-            {
-                bresLine(t.projectedCentre, t.projectedCentre.add(t.projectedNormal));
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            // try
+            // {
+            //     bresLine(t.projectedCentre, t.projectedCentre.add(t.projectedNormal));  // normal
+            // }
+            // catch (Exception e)
+            // {
+            //     e.printStackTrace();
+            // }
         }
     }
 
@@ -170,12 +177,12 @@ public class Assign1Handout extends PApplet
     public void bresLine(int fromX, int fromY, int toX, int toY)
     {
         //////// FAILSAFE \\\\\\\\\\\\\
-        // beginShape(LINES);
+        beginShape(LINES);
 
-        // vertex(fromX, fromY);
-        // vertex(toX, toY);
+        vertex(fromX, fromY);
+        vertex(toX, toY);
 
-        // endShape();
+        endShape();
         ///////////////////////////////
 
         boolean flip = false;
@@ -289,14 +296,16 @@ public class Assign1Handout extends PApplet
 
         public void notifyComponentChange()
         {
+            float area = 0;
+            float projectedArea = 0;
+
             try
             {
-                edge1 = vertex2.subtract(vertex1);
-                edge2 = vertex3.subtract(vertex2);
-                edge3 = vertex1.subtract(vertex3);
+                edge1 = vertex2.subtract(vertex1); // AB
+                edge2 = vertex3.subtract(vertex2); // BC
+                edge3 = vertex1.subtract(vertex3); // CA
                 
                 normal = edge1.cross(edge2).normalize();
-                if (normal.length != 3) print("");
                 area = edge1.cross(edge2).norm() / 2;
             }
             catch (Exception e)
@@ -317,14 +326,15 @@ public class Assign1Handout extends PApplet
             
             try
             {
-                projectedEdge1 = projectedVertex2.subtract(projectedVertex1);
-                projectedEdge2 = projectedVertex3.subtract(projectedVertex2);
-                projectedEdge3 = projectedVertex1.subtract(projectedVertex3);
-                projectedArea = projectedEdge1.cross2d(projectedEdge2) / 2;
+                projectedEdge1 = projectedVertex2.subtract(projectedVertex1); // AB
+                projectedEdge2 = projectedVertex3.subtract(projectedVertex2); // BC
+                projectedEdge3 = projectedVertex1.subtract(projectedVertex3); // CA
+                projectedArea = projectedEdge1.cross2d(projectedEdge2);  // to fix
                 
-                degenerate = (area < 1f) ? true : false; // area == 0
-                projectedDegenerate = projectedArea < 1f ? true : false;
-                projectedCounterClockwiseWinding = (projectedArea > 0) ? true : false;
+                degenerate = (area < 0f) ? true : false; // area == 0
+                projectedDegenerate = projectedArea < 0f ? true : false;
+                projectedCounterClockwiseWinding = (projectedEdge1.cross2d(projectedVertex3.subtract(projectedVertex1)) > 0f) ? true : false;  // TODO: fuck windings!!!!!
+                // println("" + (projectedEdge1.cross2d(projectedVertex3.subtract(projectedVertex1)) == projectedArea));
             }
             catch (Exception e)
             {
@@ -336,19 +346,23 @@ public class Assign1Handout extends PApplet
             projectedCentre = new Vector(project(centre.payload));
 
             projectedBoxLeft = min(
-                projectedVertex1.payload[Vector.X], projectedVertex2.payload[Vector.X],
+                projectedVertex1.payload[Vector.X], 
+                projectedVertex2.payload[Vector.X],
                 projectedVertex3.payload[Vector.X]
             );
             projectedBoxRight = max(
-                projectedVertex1.payload[Vector.X], projectedVertex2.payload[Vector.X],
+                projectedVertex1.payload[Vector.X], 
+                projectedVertex2.payload[Vector.X],
                 projectedVertex3.payload[Vector.X]
             );
             projectedBoxBottom = min(
-                projectedVertex1.payload[Vector.Y], projectedVertex2.payload[Vector.Y],
+                projectedVertex1.payload[Vector.Y], 
+                projectedVertex2.payload[Vector.Y],
                 projectedVertex3.payload[Vector.Y]
             );
             projectedBoxTop = max(
-                projectedVertex1.payload[Vector.Y], projectedVertex2.payload[Vector.Y],
+                projectedVertex1.payload[Vector.Y], 
+                projectedVertex2.payload[Vector.Y],
                 projectedVertex3.payload[Vector.Y]
             );
         }
@@ -362,7 +376,8 @@ public class Assign1Handout extends PApplet
             }
             else 
             {
-                try {
+                try 
+                {
                     boolean condition1 = (projectedEdge1.cross2d(p.subtract(projectedVertex1)) > 0f);
                     boolean condition2 = (projectedEdge2.cross2d(p.subtract(projectedVertex2)) > 0f);
                     boolean condition3 = (projectedEdge3.cross2d(p.subtract(projectedVertex3)) > 0f);
@@ -387,7 +402,6 @@ public class Assign1Handout extends PApplet
         Vector normal;
         Vector centre;
         boolean degenerate;
-        float area;
 
         // projected data. On the screen raster
         Vector projectedVertex1; // (p)rojected vertices
@@ -401,7 +415,6 @@ public class Assign1Handout extends PApplet
 
         boolean projectedDegenerate;
         boolean projectedCounterClockwiseWinding;
-        float projectedArea;
 
         float projectedBoxLeft;
         float projectedBoxRight;
@@ -731,6 +744,7 @@ public class Assign1Handout extends PApplet
             {
                 ret += f * f;
             }
+
             return sqrt(ret);
         }
 
@@ -1091,8 +1105,6 @@ public class Assign1Handout extends PApplet
         {
 
             if (rotated[i] == null)
-                // rotated[i] = setupTriangle(new Triangle(original[i].vertex1,
-                // original[i].vertex2, original[i].vertex3));
                 rotated[i] = new Triangle(original[i].vertex1, original[i].vertex2, original[i].vertex3);
             else
             {
@@ -1115,7 +1127,6 @@ public class Assign1Handout extends PApplet
                 rotateVertex(rotated[i].vertex1.payload, theta);
                 rotateVertex(rotated[i].vertex2.payload, theta);
                 rotateVertex(rotated[i].vertex3.payload, theta);
-                // setupTriangle(rotated[i]);
                 rotated[i].notifyComponentChange();
             }
         }

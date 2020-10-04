@@ -38,7 +38,7 @@ public class Scrach extends PApplet
         colorMode(RGB, 1.0f);
         background(0);
     }
-
+    int count = 0;
 
     public void draw()
     {
@@ -53,26 +53,47 @@ public class Scrach extends PApplet
         float theta = 0f; // from 0 to 2Pi
         float phi = 0f; // from 0 to Pi
 
-        // ArrayList<Vector> points = new ArrayList<Vector>();
+        // int innerCount = 0;
+
         for (int i = 0; i < divisions; i++)
         {
             for (int j = 0; j < divisions; j++)
             {
+                // if (innerCount > count)
+                // {
+                //     continue;
+                // }
+                // else innerCount++;
+
                 float[] t = new float[] {
                     (float) radius * (float) Math.sin(phi) * (float) Math.sin(theta),
                     (float) radius * (float) Math.cos(phi),
                     (float) radius * (float) Math.sin(phi) * (float) Math.cos(theta)
                 };
+                theta += unit2PI;
+                // System.out.println("(" + 
+                //     (float) radius * (float) Math.sin(phi) * (float) Math.sin(theta) + ", " +
+                //     (float) radius * (float) Math.cos(phi) + ", " +
+                //     (float) radius * (float) Math.sin(phi) * (float) Math.cos(theta) + ")"
+                // );
+                // if (t[2] > 0)
+                // {
+                //     stroke(0, 255, 0);
+                // }
+                // else
+                // {
+                //     stroke(255, 255, 255);
+                // }
+                // delay(20);
                 
                 t = project(t);
-                beginShape(POINTS);
-                vertex(t[0], t[1]);
-                endShape();
-
-                theta += unit2PI;
+                point(t[0], t[1]);
             }
             phi += unitPi;
         }
+
+        // if (count < divisions * divisions)
+        //     count++;
     }
 
 
