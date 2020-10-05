@@ -46,8 +46,8 @@ public class Assign1Handout extends PApplet
             {
                 Triangle t1 = new Triangle(
                     points[i][j],
-                    points[i][j + 1],
-                    points[i + 1][j + 1]
+                    points[i + 1][j + 1],
+                    points[i][j + 1]
                 );
 
                 Triangle t2 = new Triangle(
@@ -62,8 +62,8 @@ public class Assign1Handout extends PApplet
 
             Triangle last1 = new Triangle(
                 points[i][divisions - 1],
-                points[i][0],
-                points[i + 1][0]
+                points[i + 1][0],
+                points[i][0]
             );
 
             Triangle last2 = new Triangle(
@@ -96,12 +96,10 @@ public class Assign1Handout extends PApplet
     // those with your versions once it works.
     public void draw2DTriangle(Triangle t, Lighting lighting, Shading shading)
     {
-        // TODO: Culling didn't work! 
-        // if (t.degenerate || t.projectedDegenerate || !t.projectedCounterClockwiseWinding)
-        // {
-        //     // println(t.degenerate || t.projectedDegenerate ? "degenerate" : "CW Winding");
-        //     return;
-        // }
+        if (t.projectedDegenerate || !t.projectedCounterClockwiseWinding)
+        {
+            return;
+        }
 
         fillTriangle(t, shading);
 
@@ -296,9 +294,6 @@ public class Assign1Handout extends PApplet
 
         public void notifyComponentChange()
         {
-            float area = 0;
-            float projectedArea = 0;
-
             try
             {
                 edge1 = vertex2.subtract(vertex1); // AB
@@ -306,7 +301,6 @@ public class Assign1Handout extends PApplet
                 edge3 = vertex1.subtract(vertex3); // CA
                 
                 normal = edge1.cross(edge2).normalize();
-                area = edge1.cross(edge2).norm() / 2;
             }
             catch (Exception e)
             {
@@ -329,12 +323,10 @@ public class Assign1Handout extends PApplet
                 projectedEdge1 = projectedVertex2.subtract(projectedVertex1); // AB
                 projectedEdge2 = projectedVertex3.subtract(projectedVertex2); // BC
                 projectedEdge3 = projectedVertex1.subtract(projectedVertex3); // CA
-                projectedArea = projectedEdge1.cross2d(projectedEdge2);  // to fix
+                projectedArea = Math.abs(projectedEdge1.cross2d(projectedEdge2));
                 
-                degenerate = (area < 0f) ? true : false; // area == 0
-                projectedDegenerate = projectedArea < 0f ? true : false;
-                projectedCounterClockwiseWinding = (projectedEdge1.cross2d(projectedVertex3.subtract(projectedVertex1)) > 0f) ? true : false;  // TODO: fuck windings!!!!!
-                // println("" + (projectedEdge1.cross2d(projectedVertex3.subtract(projectedVertex1)) == projectedArea));
+                projectedDegenerate = projectedArea < 1f ? true : false;
+                projectedCounterClockwiseWinding = (projectedEdge1.cross2d(projectedEdge2) > 0f) ? true : false;
             }
             catch (Exception e)
             {
@@ -401,10 +393,9 @@ public class Assign1Handout extends PApplet
         Vector edge3;
         Vector normal;
         Vector centre;
-        boolean degenerate;
 
-        // projected data. On the screen raster
-        Vector projectedVertex1; // (p)rojected vertices
+        // projected data on the screen raster
+        Vector projectedVertex1;
         Vector projectedVertex2;
         Vector projectedVertex3;
         Vector projectedEdge1;
@@ -412,6 +403,7 @@ public class Assign1Handout extends PApplet
         Vector projectedEdge3;
         Vector projectedNormal;
         Vector projectedCentre;
+        float projectedArea;
 
         boolean projectedDegenerate;
         boolean projectedCounterClockwiseWinding;
@@ -764,20 +756,24 @@ public class Assign1Handout extends PApplet
 
         Triangle t;
 
-        do 
-        {
-            t = new Triangle(
-            new Vector(random(-160, 160), random(-160, 160), random(-160, 160)),
-            new Vector(random(-160, 160), random(-160, 160), random(-160, 160)),
-            new Vector(random(-160, 160), random(-160, 160), random(-160, 160))
-            );
-        } while (t.projectedDegenerate || !t.projectedCounterClockwiseWinding);
+        // do 
+        // {
+        //     t = new Triangle(
+        //     new Vector(random(-160, 160), random(-160, 160), random(-160, 160)),
+        //     new Vector(random(-160, 160), random(-160, 160), random(-160, 160)),
+        //     new Vector(random(-160, 160), random(-160, 160), random(-160, 160))
+        //     );
+        // } while (t.projectedDegenerate || !t.projectedCounterClockwiseWinding);
         
-        // t = new Triangle(
-        //     new Vector(-141.22969f, -71.76317f, -46.007675f),
-        //     new Vector(95.48776f, 66.87723f, 145.24771f),
-        //     new Vector(32.29593f, 45.46768f, -47.11788f)
-        // );
+        t = new Triangle(
+            new Vector(-220f, -70f, 0f),
+            new Vector(190f, 260f, 0f),
+            new Vector(270f, -250f, 0f)
+        );
+
+        print(t.projectedCounterClockwiseWinding ? "ccw" : "cw");
+        println(t.projectedDegenerate ? " degenerate": "");
+
 
         println(t.toString());
         draw2DTriangle(t, Lighting.FLAT, Shading.BARYCENTRIC);
@@ -857,8 +853,6 @@ public class Assign1Handout extends PApplet
         bresLine(0 + offset, -dlarge, 0 + offset, dlarge);
     }
 
-    // put class Triangle back here
-
 
     Triangle[] sphereList;
     Triangle[] rotatedList;
@@ -890,6 +884,7 @@ public class Assign1Handout extends PApplet
     public void draw()
     {
         clear();
+        // triangleTest();
 
         if (rotate)
         {
@@ -954,7 +949,7 @@ public class Assign1Handout extends PApplet
 
 
     Shading shading = Shading.NONE;
-    boolean doOutline = false; // to draw, or not to draw (outline).. is the question
+    boolean doOutline = true; // to draw, or not to draw (outline).. is the question
     boolean rotate = false;
     boolean normals = false;
     boolean accelerated = false;
