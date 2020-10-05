@@ -128,23 +128,64 @@ public class Assign1Handout extends PApplet
     // - uses POINTS to draw on the raster
     public void fillTriangle(Triangle t, Shading shading)
     {
+        beginShape(POINTS);
+
         if (shading == Shading.NONE)
         {
             return;
         }
-
-        beginShape(POINTS);
-        for (int y = (int) t.projectedBoxBottom; y < (int) t.projectedBoxTop; y++)
+        else if (shading == Shading.BARYCENTRIC)
         {
-            for (int x = (int) t.projectedBoxLeft; x < (int) t.projectedBoxRight; x++)
+            for (int y = (int) t.projectedBoxBottom; y < (int) t.projectedBoxTop; y++)
             {
-                if (t.isContainsPoint(new Vector((float) x, (float) y)))
+                for (int x = (int) t.projectedBoxLeft; x < (int) t.projectedBoxRight; x++)
                 {
-                    stroke(0, 255, 0);  // TODO: shading??
-                    vertex(x, y);
+                    Vector p = new Vector(x, y);
+
+                    if (t.isContainsPoint(p))
+                    {
+                        try 
+                        {
+                            float u = Math.abs((t.projectedEdge1.cross2d(p.subtract(t.projectedVertex1)) / t.projectedArea));
+                            float v = Math.abs((t.projectedEdge2.cross2d(p.subtract(t.projectedVertex2)) / t.projectedArea));
+                            float w = Math.abs((t.projectedEdge3.cross2d(p.subtract(t.projectedVertex3)) / t.projectedArea));
+                            // println("(" + u + ", " + v + ", " + w + ")");
+
+                            stroke(u, v, w);
+                        } 
+                        catch (Exception e) 
+                        {
+                            e.printStackTrace();
+                        }
+    
+                        vertex(x, y);
+                    }
                 }
             }
         }
+        else// if (shading == Shading.FLAT)
+        {
+            for (int y = (int) t.projectedBoxBottom; y < (int) t.projectedBoxTop; y++)
+            {
+                for (int x = (int) t.projectedBoxLeft; x < (int) t.projectedBoxRight; x++)
+                {
+                    if (t.isContainsPoint(new Vector((float) x, (float) y)))
+                    {
+                        stroke(1, 1, 1);
+                        vertex(x, y);
+                    }
+                }
+            }
+        }
+        // else if (shading == Shading.GOURAUD)
+        // {
+            
+        // }
+        // else if (shading == Shading.PHONG)
+        // {
+            
+        // }
+        
         endShape();
     }
 
