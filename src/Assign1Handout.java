@@ -402,7 +402,7 @@ public class Assign1Handout extends PApplet
 
 
         public boolean isContainsPoint(Vector p)
-        {
+        {// TODO: seams and holes
             if (p.length != 2)
             {
                 return false;
