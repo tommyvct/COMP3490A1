@@ -132,6 +132,7 @@ public class Assign1Handout extends PApplet
 
         if (shading == Shading.NONE)
         {
+            endShape();
             return;
         }
         else if (shading == Shading.BARYCENTRIC)
@@ -258,9 +259,9 @@ public class Assign1Handout extends PApplet
             deltaY = toY - fromY;
             gradient = (float) deltaY / (float) deltaX;
         }
+
         int x = fromX;
         int y = fromY;
-
         int[][] points = new int[Math.abs(deltaX)][2];
 
         for (int i = 0; i < points.length; i++)
@@ -277,6 +278,7 @@ public class Assign1Handout extends PApplet
                 error += (error < 0) ? +1 : -1;
             }
         }
+
         beginShape(POINTS);
 
         for (int[] point : points)
@@ -291,6 +293,7 @@ public class Assign1Handout extends PApplet
                 vertex(point[0], point[1]);
             }
         }
+
         endShape();
     }
 
@@ -329,7 +332,7 @@ public class Assign1Handout extends PApplet
         public String toString()
         {
             return "{ " + vertex1.toString() + ", " + vertex2.toString() + ", " + vertex3.toString() + " }" + 
-                " ->  \n{ " + projectedVertex1.toString() + ", " + projectedVertex2.toString() + projectedVertex3.toString() + " }";
+                " ->  \n{ " + projectedVertex1.toString() + ", " + projectedVertex2.toString() + ", " + projectedVertex3.toString() + " }";
         }
 
 
@@ -354,9 +357,9 @@ public class Assign1Handout extends PApplet
                 (vertex1.payload[Vector.Z] + vertex2.payload[Vector.Z] + vertex3.payload[Vector.Z]) / 3
             );
             
-            projectedVertex1 = new Vector(project(vertex1.payload));
-            projectedVertex2 = new Vector(project(vertex2.payload));
-            projectedVertex3 = new Vector(project(vertex3.payload));
+            projectedVertex1 = new Vector(sliceDecimal(project(vertex1.payload)));
+            projectedVertex2 = new Vector(sliceDecimal(project(vertex2.payload)));
+            projectedVertex3 = new Vector(sliceDecimal(project(vertex3.payload)));
 
             
             try
@@ -411,10 +414,16 @@ public class Assign1Handout extends PApplet
             {
                 try 
                 {
-                    boolean condition1 = (projectedEdge1.cross2d(p.subtract(projectedVertex1)) > 0f);
-                    boolean condition2 = (projectedEdge2.cross2d(p.subtract(projectedVertex2)) > 0f);
-                    boolean condition3 = (projectedEdge3.cross2d(p.subtract(projectedVertex3)) > 0f);
-                    return condition1 == condition2 && condition1 ==  condition3 && condition2 == condition3;
+                    boolean condition1 = (projectedEdge1.cross2d(p.subtract(projectedVertex1)) >= 0f);
+                    boolean condition2 = (projectedEdge2.cross2d(p.subtract(projectedVertex2)) >= 0f);
+                    boolean condition3 = (projectedEdge3.cross2d(p.subtract(projectedVertex3)) >= 0f);
+                    boolean ret = condition1 == condition2 && condition1 ==  condition3 && condition2 == condition3;
+                    if (!ret && Math.abs(p.payload[0]) <= 1f && Math.abs(p.payload[1] - 76f) <= 1f && Math.abs(this.projectedVertex2.payload[0]) <= 1f  && Math.abs(this.projectedVertex2.payload[1]) - 76f <= 1f)
+                    {
+                        print();
+                    }
+
+                    return ret;
                 }
                 catch (Exception e)
                 {
@@ -795,8 +804,6 @@ public class Assign1Handout extends PApplet
     {
         stroke(1.0f, 1.0f, 1.0f);
 
-        Triangle t;
-
         // do 
         // {
         //     t = new Triangle(
@@ -806,10 +813,10 @@ public class Assign1Handout extends PApplet
         //     );
         // } while (t.projectedDegenerate || !t.projectedCounterClockwiseWinding);
         
-        t = new Triangle(
-            new Vector(-220f, -70f, 0f),
-            new Vector(190f, 260f, 0f),
-            new Vector(270f, -250f, 0f)
+        Triangle t = new Triangle(
+            new Vector(0f, 300f, 0f),
+            new Vector(0f, -300f, 0f),
+            new Vector(300f, 0f, 0f)
         );
 
         print(t.projectedCounterClockwiseWinding ? "ccw" : "cw");
@@ -819,6 +826,26 @@ public class Assign1Handout extends PApplet
         println(t.toString());
         draw2DTriangle(t, Lighting.FLAT, Shading.BARYCENTRIC);
 
+        Triangle t2 = new Triangle(
+            new Vector(0f, 300f, 0f),
+            new Vector(0f, -300f, 0f),
+            new Vector(-300f, 0f, 0f)
+        );
+        draw2DTriangle(t2, Lighting.FLAT, Shading.BARYCENTRIC);
+
+    }
+
+
+    static public float[] sliceDecimal(float[] toSlice)
+    {
+        float[] ret = new float[toSlice.length];
+
+        for (int i = 0; i < ret.length; i++) 
+        {
+            ret[i] = (float) (int) toSlice[i];
+        }
+
+        return ret;
     }
 
 
@@ -927,6 +954,27 @@ public class Assign1Handout extends PApplet
         clear();
         // triangleTest();
 
+        // Triangle t = new Triangle(
+        //     new Vector(0f, 300f, 0f),
+        //     new Vector(0f, -300f, 0f),
+        //     new Vector(300f, 0f, 0f)
+        // );
+        // draw2DTriangle(t, Lighting.FLAT, Shading.BARYCENTRIC);
+
+        // print(t.projectedCounterClockwiseWinding ? "ccw" : "cw");
+        // println(t.projectedDegenerate ? " degenerate": "");
+
+
+        // println(t.toString());
+
+        // Triangle t2 = new Triangle(
+        //     new Vector(0f, 300f, 0f),
+        //     new Vector(-300f, 0f, 0f),
+        //     new Vector(0f, -300f, 0f)
+        // );
+        // draw2DTriangle(t2, Lighting.FLAT, Shading.BARYCENTRIC);
+
+
         if (rotate)
         {
             theta += delta;
@@ -990,7 +1038,7 @@ public class Assign1Handout extends PApplet
 
 
     Shading shading = Shading.NONE;
-    boolean doOutline = true; // to draw, or not to draw (outline).. is the question
+    boolean doOutline = false; // to draw, or not to draw (outline).. is the question
     boolean rotate = false;
     boolean normals = false;
     boolean accelerated = false;
